@@ -3,6 +3,8 @@ package org.example.loginapp.user;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 public class KakaoResponse {
 
     @Data // getter, setter
@@ -25,7 +27,7 @@ public class KakaoResponse {
         private Long id;
 
         @JsonProperty("connected_at")
-        private String connectedAt;
+        private Timestamp connectedAt;
         private properties properties;
 
         @Data
