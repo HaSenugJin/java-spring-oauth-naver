@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @RequiredArgsConstructor
@@ -13,9 +12,10 @@ public class UserController {
     private final UserService userService;
     private final HttpSession session; // IOC 등록되어 있음 (스프링 실행 되면)
 
-    // http://localhost8080/oauth/callback?code=3faw1
+    // http://localhos:8080/oauth/callback?code=3faw1
     @GetMapping("/oauth/callback")
     public String oauthCallback(String code) {
+        System.out.println("code: " + code);
         User sessionUser = userService.카카오로그인(code);
         session.setAttribute("sessionUser", sessionUser);
         return "redirect:/shop";
