@@ -16,6 +16,7 @@ public class ShopController {
     private final ShopService shopService;
     private final HttpSession session;
 
+
     @GetMapping("/shop")
     public String shop(HttpServletRequest request) {
         User sessionUser = (User) session.getAttribute("sessionUser");
