@@ -13,10 +13,10 @@ public class UserController {
     private final HttpSession session; // IOC 등록되어 있음 (스프링 실행 되면)
 
     // http://localhos:8080/oauth/callback?code=3faw1
-    @GetMapping("/oauth/callback")
-    public String oauthCallback(String code) {
+    @GetMapping("/oauth/naver/callback")
+    public String oauthNaverCallback(String code) {
         System.out.println("code: " + code);
-        User sessionUser = userService.카카오로그인(code);
+        User sessionUser = userService.네이버로그인(code);
         session.setAttribute("sessionUser", sessionUser);
         return "redirect:/shop";
     }

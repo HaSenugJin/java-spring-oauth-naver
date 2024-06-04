@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-public class KakaoResponse {
+public class NaverResponse {
 
     @Data // getter, setter
     public static class TokenDTO {
@@ -17,22 +17,26 @@ public class KakaoResponse {
         private String refreshToken;
         @JsonProperty("expires_in")
         private Integer expiresIn;
-        private String scope; // 조심하자
-        @JsonProperty("refresh_token_expires_in")
-        private Integer refreshTokenExpiresIn;
+
+        private String error;
+
+        @JsonProperty("error_description")
+        private String errorDescription;
     }
 
     @Data
-    public static class KakaoUserDTO {
-        private Long id;
-
-        @JsonProperty("connected_at")
-        private Timestamp connectedAt;
-        private properties properties;
+    public static class NaverUserDTO {
+        @JsonProperty("response")
+        private response response;
 
         @Data
-        class properties {
-            private String nickname;
+        public static class response {
+            private String id;
+            private String email;
+            private String mobile;
+            private String name;
+            @JsonProperty("birthyear")
+            private String birthYear;
         }
     }
 }

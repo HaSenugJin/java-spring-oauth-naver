@@ -1,8 +1,6 @@
 package org.example.loginapp.user;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +12,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -44,7 +44,7 @@ public class UserService {
         }
     }
 
-    public User 카카오로그인(String code) {
+    public User 네이버로그인(String code) {
         // 1. code로 카카오에서 토큰 받기 (위임완료) - oauth2.0
 
         // 1.1 RestTemplate 설정
@@ -57,20 +57,22 @@ public class UserService {
         // 1.3 http body 설정
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "275147bbe8f7e598d0ea4284d03f8ae7");
-        body.add("redirect_uri", "http://localhost:8080/oauth/callback");
+        body.add("client_id", "UHwX18Jrg1Izof5nUd_6");
+        body.add("client_secret", "XH5bOfK1hY");
+        body.add("redirect_uri", "http://localhost:8080/oauth/naver/callback");
         body.add("code", code);
+        body.add("state", "1234");
 
         // 1.4 body+header 객체 만들기
         HttpEntity<MultiValueMap<String, String>> request =
                 new HttpEntity<>(body, headers);
 
         // 1.5 api 요청하기 (토큰 받기)
-        ResponseEntity<KakaoResponse.TokenDTO> response = rt.exchange(
-                "https://kauth.kakao.com/oauth/token",
+        ResponseEntity<NaverResponse.TokenDTO> response = rt.exchange(
+                "https://nid.naver.com/oauth2.0/token",
                 HttpMethod.POST,
                 request,
-                KakaoResponse.TokenDTO.class);
+                NaverResponse.TokenDTO.class);
 
         // 1.6 값 확인
         System.out.println(response.getBody().toString());
@@ -83,17 +85,17 @@ public class UserService {
         HttpEntity<MultiValueMap<String, String>> request2 =
                 new HttpEntity<>(headers2);
 
-        ResponseEntity<KakaoResponse.KakaoUserDTO> response2 = rt.exchange(
-                "https://kapi.kakao.com/v2/user/me",
+        ResponseEntity<NaverResponse.NaverUserDTO> response2 = rt.exchange(
+                "https://openapi.naver.com/v1/nid/me",
                 HttpMethod.GET,
                 request2,
-                KakaoResponse.KakaoUserDTO.class);
+                NaverResponse.NaverUserDTO.class);
 
         System.out.println("response2 : "+response2.getBody().toString());
 
         // 3. 해당정보로 DB조회 (있을수, 없을수)
-        String username = "kakao_"+response2.getBody().getId();
-        User userPS = userRepository.findByUsername(username);
+        String email = "naver_"+response2.getBody().getResponse().getEmail();
+        User userPS = userRepository.findByEmail(email);
 
         // 4. 있으면? - 조회된 유저정보 리턴
         if(userPS != null){
@@ -107,10 +109,10 @@ public class UserService {
             // 이메일 : email 받은 값
             // 프로바이더 : kakao
             User user = User.builder()
-                    .username(username)
+                    .username(response2.getBody().getResponse().getName())
                     .password(UUID.randomUUID().toString())
-                    .email(response2.getBody().getProperties().getNickname()+"@nate.com")
-                    .provider("kakao")
+                    .email("naver_"+response2.getBody().getResponse().getEmail())
+                    .provider("naver")
                     .build();
             User returnUser = userRepository.save(user);
             return returnUser;
